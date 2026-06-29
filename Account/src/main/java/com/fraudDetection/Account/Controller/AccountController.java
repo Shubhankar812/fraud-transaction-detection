@@ -31,7 +31,9 @@ public class AccountController {
     public List<Account> getAccounts() {
 
         List<Account> account =  accountService.getAllAccount();
-        accId = account.get(0).getAccountId();
+        if (!account.isEmpty()) {
+            accId = account.get(0).getAccountId();
+        }
         return account;
     }
 
@@ -57,10 +59,11 @@ public class AccountController {
 
     @GetMapping("/customer/{id}")
     public customerDTO getCustomerDetails(@PathVariable Long id) {
-        Long accountId = accId;
         customerDTO dto = customerClient.getCustomerWithAccount(id);
 
-        dto.setAccountId(accountService.getAllAccount().get(0).getAccountId());
+        if (accId != null) {
+            dto.setAccountId(accId);
+        }
 
         return dto;
     }

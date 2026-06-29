@@ -9,9 +9,11 @@ import java.util.*;
 @Service
 public class TransactionService {
     private TransactionRepository transactionRepository;
+    private TransactionEventProducer transactionEventProducer;
 
-    public TransactionService(TransactionRepository tr) {
+    public TransactionService(TransactionRepository tr, TransactionEventProducer transactionEventProducer) {
         this.transactionRepository = tr;
+        this.transactionEventProducer = transactionEventProducer;
     }
 
     public List<TransactionDB> getAllTransactions() {
@@ -23,7 +25,9 @@ public class TransactionService {
     }
 
     public TransactionDB addTransaction(TransactionDB transactionDB) {
-        return transactionRepository.save(transactionDB);
+        TransactionDB savedTransaction = transactionRepository.save(transactionDB);
+        transactionEventProducer.publishTransactionCreated(savedTransaction);
+        return savedTransaction;
     }
 
     public TransactionDB updateTransaction(Long transactionId, TransactionDB updatedTransaction) {
@@ -44,7 +48,8 @@ public class TransactionService {
 
     public void deleteTransaction(Long id) {
         TransactionDB transactionDB = transactionRepository.findById(id).orElse(null);
-
-        transactionRepository.delete(transactionDB);
+        if (transactionDB != null) {
+            transactionRepository.delete(transactionDB);
+        }
     }
 }

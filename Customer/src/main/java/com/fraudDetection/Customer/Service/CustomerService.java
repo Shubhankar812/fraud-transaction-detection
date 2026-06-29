@@ -43,6 +43,8 @@ public class CustomerService {
 
     public void deleteCustomer(Long id) {
         Customer customer = customerRepository.findById(id).orElse(null);
-        customerRepository.delete(customer);
+        if (customer != null) {
+            customerRepository.delete(customer);
+        }
     }
 }
